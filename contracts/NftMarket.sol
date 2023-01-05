@@ -6,155 +6,109 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-
 contract NFTmarketplace is ERC721URIStorage {
-    address payable owner;
-    using Counters for Counters.Counter;
-    Counters.Counter public  _tokenIds;
-    Counters.Counter private _itemsold;
+    address payable private immutable OWNER;
+    uint256 public  _tokenIds;
+    // uint256 public _itemsold;
     uint256 listPrice = 1 ether;
 
     constructor() ERC721("nFTmarketplace", "nftm") {
-        owner = payable(msg.sender);
+        OWNER = payable(msg.sender);
     }
 
-    struct ListedToken {
-        uint256 tokenId;
-        address payable owner;
-        address payable seller;
-        uint256 price;
-        bool currentlyListed;
-    }
-    mapping(uint256 => ListedToken) private idToListedToken;
+    // store token Id to price of nft
+    mapping(uint256=>uint256) private priceOfNFT;
 
-    function updateListPrice(uint256 _listPrice) public payable {
-        require(owner == msg.sender, "only for owner");
+    event Mint(address indexed creator, uint indexed tokenId,string indexed tokenURI);
+    event Buy(address indexed from, address indexed to, uint tokenId, uint price);
+
+
+    // mapp token with their transaction history
+        mapping(uint256=>address[]) private TransationHistory;
+
+
+    function updateListPrice(uint256 _listPrice) external payable {
+        require(OWNER == msg.sender, "only for owner");
         listPrice = _listPrice;
     }
 
-    function getListPrice() public view returns (uint256) {
-        return listPrice;
-    }
 
-    function getLatesIdToListedToken()
-        public
-        view
-        returns (ListedToken memory)
-    {
-        uint256 currentTokenId = _tokenIds.current();
-        return idToListedToken[currentTokenId];
-    }
-
-    function getListedForTokenId(uint256 tokenId)
-        public
-        view
-        returns (ListedToken memory)
-    {
-        return idToListedToken[tokenId];
-    }
-
-    function getCurrentToken() public view returns (uint256) {
-        return _tokenIds.current();
-    }
 
     function creatToken(string memory tokenURI, uint256 price)
         public
         payable
         returns (uint256)
     {
+        require(tx.origin==msg.sender,"only by EOA can mint NFT");
         require(msg.value == listPrice, "send enough ether");
-        require(price > 0, "make sure the isn't negative");
-        _tokenIds.increment();
-        uint256 newTokenId = _tokenIds.current();
+        require(price > 0, "should be some valuable price of nft");
+        uint256 newTokenId = _tokenIds;
+        _tokenIds++;
 
         _safeMint(msg.sender, newTokenId);
-
         _setTokenURI(newTokenId, tokenURI);
 
-        createListedToken(newTokenId, price);
+        TransationHistory[newTokenId].push(msg.sender);
+        priceOfNFT[_tokenIds]=price;
+        emit Mint(msg.sender,newTokenId, tokenURI);
 
         return newTokenId;
     }
 
-    function createListedToken(uint256 tokenId, uint256 price) private {
-        //Update the mapping of tokenId's to Token details, useful for retrieval functions
-        idToListedToken[tokenId] = ListedToken(
-            tokenId,
-            payable(address(this)),
-            payable(msg.sender),
-            price,
-            true
-        );
 
-        _transfer(msg.sender, address(this), tokenId);
-    }
-
-    function getAllNFTs() external view returns (ListedToken[] memory) {
-        uint256 nftCount = _tokenIds.current();
-        ListedToken[] memory tokens = new ListedToken[](nftCount);
-        uint256 currentIndex = 0;
-
-        for (uint256 i = 0; i < nftCount; i++) {
-            uint256 currentId = i + 1;
-            ListedToken storage currentItem = idToListedToken[currentId];
-            tokens[currentIndex] = currentItem;
-            currentIndex += 1;
-        }
-
-        return tokens;
-    }
-
-    function getMyNFTs() public view returns (ListedToken[] memory) {
-        uint256 totalItemCount = _tokenIds.current();
-        uint256 itemCount = 0;
-        uint256 currentIndex = 0;
-
-        for (uint256 i = 0; i < totalItemCount; i++) {
-            if (
-                idToListedToken[i + 1].owner == msg.sender ||
-                idToListedToken[i + 1].seller == msg.sender
-            ) {
-                itemCount += 1;
-            }
-        }
-
-        ListedToken[] memory items = new ListedToken[](itemCount);
-        for (uint256 i = 0; i < totalItemCount; i++) {
-            if (
-                idToListedToken[i + 1].owner == msg.sender ||
-                idToListedToken[i + 1].seller == msg.sender
-            ) {
-                uint256 currentId = i + 1;
-                ListedToken storage currentItem = idToListedToken[currentId];
-                items[currentIndex] = currentItem;
-                currentIndex += 1;
-            }
-        }
-        return items;
-    }
-
-    function executeSale(uint256 tokenId) public payable {
-        uint256 price = idToListedToken[tokenId].price;
-        address seller = idToListedToken[tokenId].seller;
+    function buy(uint256 tokenId) public payable {
+        require(msg.sender!= ownerOf(tokenId),"you can't buy own nft");
+        uint256 price = priceOfNFT[tokenId];
+        address seller = ownerOf(tokenId);
         require(
             msg.value == price,
             "Please submit the asking price in order to complete the purchase"
         );
+        _transfer(seller, msg.sender, tokenId);
+        // approve(address(this), tokenId);
+        TransationHistory[tokenId].push(msg.sender);
 
-        idToListedToken[tokenId].currentlyListed = true;
-        idToListedToken[tokenId].seller = payable(msg.sender);
-        _itemsold.increment();
 
-        _transfer(address(this), msg.sender, tokenId);
-        approve(address(this), tokenId);
-
-        payable(owner).transfer(listPrice);
+        payable(OWNER).transfer(listPrice);
 
         payable(seller).transfer(msg.value);
+        emit Buy(seller, msg.sender, tokenId, price);
     }
 
+    function UpdateNftPrice(uint tokenId, uint price) external {
+        require(msg.sender==ownerOf(tokenId),"Owner Unauthorised");
+        priceOfNFT[tokenId]=price;
+    }
 
-    function GetDetailsNFT(uint tokenId) external view returns(ListedToken memory ){
-        return idToListedToken[tokenId];
+    function GetNFTDetails(uint tokenId)
+        external
+        view
+        returns (address creator, address owner, uint price)
+    {
+        creator=TransationHistory[tokenId][0];
+        owner=ownerOf(tokenId);
+        price=priceOfNFT[tokenId];
+    }
+
+    function GetTransactionHistory(uint tokenId) external view  returns(address[] memory){
+
+        return TransationHistory[tokenId];
+
+    }
+
+    function GetCreatorOfNft(uint tokenId) external view returns(address){
+        return TransationHistory[tokenId][0];
+    }
+
+    function GetCurrentToken() external view returns (uint256) {
+        return _tokenIds;
+    }
+
+    function getListPrice() external view returns (uint256) {
+        return listPrice;
+    }
+
+    function GetNftPrice(uint tokenId) external view returns(uint){
+        return priceOfNFT[tokenId];
     }
 }

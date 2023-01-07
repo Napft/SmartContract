@@ -7,8 +7,10 @@ typechain-types
 
 # Hardhat files
 cache
-@openzeppelein
+openzeppelein\contract
 build-info
+token
+utils
 
 
 node_modules

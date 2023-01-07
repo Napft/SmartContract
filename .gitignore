@@ -4,10 +4,13 @@ coverage
 coverage.json
 typechain
 typechain-types
-
+my-app
 # Hardhat files
 cache
-artifacts
+@openzeppelein/contract
+build-info
+token
+utils
 
 
 node_modules
@@ -19,5 +22,5 @@ typechain-types
 
 # Hardhat files
 cache
-artifacts
+
 

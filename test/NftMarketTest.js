@@ -71,8 +71,8 @@ describe(" NFT marketplace contract testing", async function () {
 
     it("get all tokenUri/ hash value of store data on ipfs", async function () {
 
-        console.log("total token id ", await NFT.GetCurrentToken);
-        const totalToken = await NFT.GetCurrentToken;
+        console.log("total token id ", await NFT.GetCurrentToken());
+        const totalToken = await NFT.GetCurrentToken();
         console.log("total token uri");
         for (i = 0; i < totalToken; i++) {
             try {
@@ -88,7 +88,7 @@ describe(" NFT marketplace contract testing", async function () {
 
 
     it("get  details of all nft", async function () {
-        const totalToken = await NFT.GetCurrentToken;
+        const totalToken = await NFT.GetCurrentToken();
         console.log("get details of all nft by using javascript");
         for (i = 0; i < totalToken; i++) {
             try {
@@ -101,7 +101,7 @@ describe(" NFT marketplace contract testing", async function () {
     });
 
     it("get owner of particular tokenId", async function () {
-        const totalToken = await NFT.GetCurrentToken;
+        const totalToken = await NFT.GetCurrentToken();
         console.log("get Owner of all nft by tokenId  ");
         for (i = 0; i < totalToken; i++) {
             // for testing purpose
@@ -257,8 +257,9 @@ describe(" NFT marketplace contract testing", async function () {
 
 
     it("update nft price vlaue", async function () {
+        console.log(NFT);
 
-        // call this function to update NFT price
+        // call this function to update NFT price(reverted if owner unathorised)
         const tx1 = await NFT.connect(ACCOUNTS[0]).UpdateNftPrice(
             1,
             utils.parseEther("200")

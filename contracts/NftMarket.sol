@@ -8,9 +8,9 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract NFTmarketplace is ERC721URIStorage {
     address payable private immutable OWNER;
-    uint256 public  _tokenIds;
-    // uint256 public _itemsold;
-    uint256 listPrice = 1 ether;
+    uint256 private  _tokenIds;
+    // uint private ContractEther;
+    uint256 listPrice = 100 wei;
 
     constructor() ERC721("nFTmarketplace", "nftm") {
         OWNER = payable(msg.sender);
@@ -40,7 +40,7 @@ contract NFTmarketplace is ERC721URIStorage {
         returns (uint256)
     {
         require(tx.origin==msg.sender,"only by EOA can mint NFT");
-        require(msg.value == listPrice, "send enough ether");
+        require(msg.value > listPrice, "send enough ether");
         require(price > 0, "should be some valuable price of nft");
         uint256 newTokenId = _tokenIds;
         _tokenIds++;
@@ -57,6 +57,7 @@ contract NFTmarketplace is ERC721URIStorage {
 
 
     function buy(uint256 tokenId) public payable {
+        require(msg.sender==tx.origin,"only EOA can intrect");
         require(msg.sender!= ownerOf(tokenId),"you can't buy own nft");
         uint256 price = priceOfNFT[tokenId];
         address seller = ownerOf(tokenId);
@@ -64,12 +65,14 @@ contract NFTmarketplace is ERC721URIStorage {
             msg.value == price,
             "Please submit the asking price in order to complete the purchase"
         );
-        _transfer(seller, msg.sender, tokenId);
+        safeTransferFrom(seller, msg.sender, tokenId);
         // approve(address(this), tokenId);
         TransationHistory[tokenId].push(msg.sender);
 
+        // transfer ether to creator of nft
+        // address creator=GetCreatorOfNft(tokenId);
+        // (bool success,)=payable(creator).call{value:}
 
-        payable(OWNER).transfer(listPrice);
 
         payable(seller).transfer(msg.value);
         emit Buy(seller, msg.sender, tokenId, price);
@@ -111,4 +114,5 @@ contract NFTmarketplace is ERC721URIStorage {
     function GetNftPrice(uint tokenId) external view returns(uint){
         return priceOfNFT[tokenId];
     }
+    // fallback()external{npx hardhat compile}
 }

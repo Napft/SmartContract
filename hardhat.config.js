@@ -32,7 +32,7 @@ module.exports = {
     polygon_mumbai: {
       url: "https://polygon-mumbai.g.alchemy.com/v2/sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN",
       accounts: [
-        `0x800081db05c4a084adf753bc2853b930954cd75e1128786c4bb68571bf01d33c`,
+        `0x${privatekey}`,
       ],
       chainId: 80001,
     },

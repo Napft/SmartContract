@@ -7,8 +7,8 @@ typechain-types
 
 # Hardhat files
 cache
-artifacts/@openzeppelein/contract
-artifacts/build-info
+@openzeppelein/contract
+build-info
 
 
 node_modules
@@ -20,5 +20,5 @@ typechain-types
 
 # Hardhat files
 cache
-artifacts
+
 

@@ -32,42 +32,22 @@ describe(" NFT marketplace contract testing", async function () {
         }
         /////////////////////////////////////////////////////////////////
 
-        const priceofnft = await ethers.utils.parseEther("100");
+        const priceofnft = await ethers.utils.parseEther("0.000002");
 
         for (i = 0; i < 10; i++) {
 
             // call function to mint nft on blockchain
             const tx1 = await NFT.connect(ACCOUNTS[i]).creatToken(
                 `anand${i}kumar-->${i}`,
-                priceofnft,
-                { value: ethers.utils.parseEther("1") }
+                priceofnft
             );
-            console.log(`gas fee for continous miniting for token ${i + 1}`, tx1.gasPrice);
+            // console.log(`gas fee for continous miniting for token ${i + 1}`, tx1);
         }
         console.log("total token in market place", await NFT.GetCurrentToken());
     });
 
 
 
-
-    it("should be mint", async function () {
-        const tx1 = await NFT.connect(ACCOUNTS[12]).creatToken(
-            `anandkumar-->${i}`,
-            100,
-            { value: ethers.utils.parseEther("1") }
-        );
-
-        console.log("details of gas fee of miniting function", tx1.gasPrice);
-        //BigNumber { value: "1211184246" }   previous contract
-        // Bignumber { value: "1210678066" } by my datastructure
-
-        expect(await NFT.GetCurrentToken()).to.be.equal(11);
-        // mint function
-        console.log(
-            "balance of NFT",
-            await NFT.balanceOf(ACCOUNTS[User1]).address
-        );
-    });
 
     it("get all tokenUri/ hash value of store data on ipfs", async function () {
 
@@ -103,17 +83,12 @@ describe(" NFT marketplace contract testing", async function () {
     it("get owner of particular tokenId", async function () {
         const totalToken = await NFT.GetCurrentToken();
         console.log("get Owner of all nft by tokenId  ");
-        for (i = 0; i < totalToken; i++) {
+        for (i = 1; i < totalToken; i++) {
             // for testing purpose
             const det1 = await NFT.GetNFTDetails(i);
-            try {
+            console.log(await NFT.ownerOf(i));
+            expect(await NFT.ownerOf(i)).to.be.equal(await det1.owner);
 
-                // call this function to get current owner of NFT
-                console.log(await NFT.ownerOf(i));
-                expect(await NFT.ownerOf(i)).to.be.equal(await det1.owner);
-            } catch (error) {
-                console.log(`get error to find owner of token ${i}`);
-            }
         }
 
         console.log("address of nft contract", NFT.address);
@@ -123,18 +98,18 @@ describe(" NFT marketplace contract testing", async function () {
         const totalToken = await NFT.GetCurrentToken();
         console.log("get My all NFTs ");
         const tx1 = await NFT.connect(ACCOUNTS[2]).buy(1, {
-            value: ethers.utils.parseEther("100"),
+            value: ethers.utils.parseEther("0.000002"),
         });
-
+        console.log("gasfee of buy nft",tx1.gasPrice);
         // let's user is account[2] // fetch from metamask
-        user = 2;
         for (i = 0; i < totalToken; i++) {
             try {
                 // console.log(await NFT.GetNFTDetails(i))
-                const det1 = await NFT.GetNFTDetails(i);
+                const owner = await NFT.ownerOf(i);
+                // const creator = await NFT.GetCreatorOfNft(i);
 
                 // compare address with metamask address for current user
-                if (det1.owner == ACCOUNTS[user].address || det1.creator == ACCOUNTS[user].address) {
+                if (owner == ACCOUNTS[2].address) {
                     console.log(
                         "****************************successfully get my all nft ******************************"
                     );
@@ -149,20 +124,19 @@ describe(" NFT marketplace contract testing", async function () {
     it("get my all created nft", async function () {
         const totalToken = await NFT.GetCurrentToken;
         console.log("get my created all nft");
-        user = 2;
         for (i = 0; i < totalToken; i++) {
             try {
                 // console.log(await NFT.GetNFTDetails(i))
-                const det1 = await NFT.GetNFTDetails(i);
+                const creator = await NFT.GetCreatorOfNft(i);
 
                 // compare address with metamask for current user
-                if (det1.creator == ACCOUNTS[user].address) {
+                if (creator == ACCOUNTS[2].address) {
                     console.log(
                         "##################successfully get my all created nft #####################################"
                     );
 
-                    // creator of nft
-                    console.log(await det1.creator);
+
+                    console.log(await creator);
                 }
             } catch (error) {
                 console.log(`get error to find my nft  of token === ${i}`);
@@ -193,7 +167,7 @@ describe(" NFT marketplace contract testing", async function () {
 
     it("ownership testing of each nft", async function () {
         const tx1 = await NFT.connect(ACCOUNTS[2]).buy(1, {
-            value: ethers.utils.parseEther("100"),
+            value: ethers.utils.parseEther("0.000002"),
         });
         console.log(
             "ownership testing of each nft comaparing struct and original ownership by oppenzapplien"
@@ -201,12 +175,12 @@ describe(" NFT marketplace contract testing", async function () {
         const totalToken = await NFT.GetCurrentToken;
         for (i = 0; i < totalToken; i++) {
             const det1 = await NFT.GetNFTDetails(i);
-            try {
-                console.log(await NFT.ownerOf(i));
-                expect(await NFT.ownerOf(i)).to.be.equal(await det1.owner);
-            } catch (error) {
-                console.log(`ownership conflicting of token value== ${i}`);
-            }
+            expect(await NFT.ownerOf(i)).to.be.equal(await det1.owner);
+            // try {
+            //     console.log(await NFT.ownerOf(i));
+            // } catch (error) {
+            //     console.log(`ownership conflicting of token value== ${i}`);
+            // }
         }
     });
 
@@ -215,13 +189,25 @@ describe(" NFT marketplace contract testing", async function () {
         //   gasPrice: BigNumber { value: "1000002114" }, use openzapplien owner
         const nftdetails = await NFT.GetNFTDetails(1);
         console.log("details of token 1 nft before buy", nftdetails);
+
+        console.log("price of tokenid 1 is ", await NFT.GetNftPrice(1));
         const tx1 = await NFT.connect(ACCOUNTS[10]).buy(1, {
-            value: ethers.utils.parseEther("100"),
+            value: ethers.utils.parseEther("0.000002")
+        });
+        console.log("gas fee of buy function", tx1.gasPrice);
+        const tx2 = await NFT.connect(ACCOUNTS[9]).buy(1, {
+            value: ethers.utils.parseEther("0.000002"),
+            // console.log("gas fee of buy function",tx1.gasPrice)
         });
         console.log("details of token 1 nft after buy", nftdetails);
-
-        console.log("gas fee details of buy nft", await tx1.gasPrice);
+        console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+        console.log("gas fee details of buy nft@@@@@@@@@@@@@@", await tx1.gasPrice);
         // expect(await NFT.ownerOf(1)).to.be.equal(await nftdetails.owner);
+
+        console.log(
+            "transaction history of token1 is",
+            await NFT.GetTransactionHistory(1)
+        );
     });
 
 
@@ -229,7 +215,7 @@ describe(" NFT marketplace contract testing", async function () {
 
         for (i = 0; i < 5; i++) {
             const tx1 = await NFT.connect(ACCOUNTS[i + 2]).buy(1, {
-                value: ethers.utils.parseEther("100"),
+                value: ethers.utils.parseEther("0.000002"),
             });
         }
 
@@ -257,7 +243,7 @@ describe(" NFT marketplace contract testing", async function () {
 
 
     it("update nft price vlaue", async function () {
-        console.log(NFT);
+        // console.log(NFT);
 
         // call this function to update NFT price(reverted if owner unathorised)
         const tx1 = await NFT.connect(ACCOUNTS[0]).UpdateNftPrice(
@@ -265,6 +251,29 @@ describe(" NFT marketplace contract testing", async function () {
             utils.parseEther("200")
         );
         expect(await NFT.GetNftPrice(1)).to.be.equal(utils.parseEther("200"));
+
+    })
+
+    it("get my total nft", async function(){
+        console.log("get my total number of nfts");
+        expect(await NFT.MyTotalNft(ACCOUNTS[2].address)).to.be.equal(1);
+    })
+
+
+    it("withdraw all ether from contract",async function(){
+        const tx1= await NFT.connect(ACCOUNTS[0]).withdraw();
+        expect(await Provider.getBalance(NFT.address)).to.be.equal(0);
+
+
+    })
+
+    it("get token id at time of minitng", async function () {
+        const tx2 = await NFT.connect(ACCOUNTS[3]).callStatic.creatToken(
+            "dkfjkdfjk",
+            1200
+        );
+        console.log("tx2 details", tx2.toNumber());
+        expect(await tx2.toNumber()).to.be.equal(11);
 
     })
 });

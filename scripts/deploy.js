@@ -22,12 +22,13 @@ async function main() {
     `compile nft smart contract with address ${NFT.address}`
   );
 
-  console.log("abi of contract", NFT.abi);
+  // console.log("abi of contract", NFT.abi);
 }
 
+main()
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+// main().catch((error) => {
+//   console.error(error);
+//   process.exitCode = 1;
+// });

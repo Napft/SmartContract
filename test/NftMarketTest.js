@@ -39,7 +39,8 @@ describe(" NFT marketplace contract testing", async function () {
             // call function to mint nft on blockchain
             const tx1 = await NFT.connect(ACCOUNTS[i]).creatToken(
                 `anand${i}kumar-->${i}`,
-                priceofnft
+                priceofnft,
+                i
             );
             // console.log(`gas fee for continous miniting for token ${i + 1}`, tx1);
         }
@@ -270,10 +271,17 @@ describe(" NFT marketplace contract testing", async function () {
     it("get token id at time of minitng", async function () {
         const tx2 = await NFT.connect(ACCOUNTS[3]).callStatic.creatToken(
             "dkfjkdfjk",
-            1200
+            1200,
+            2
         );
         console.log("tx2 details", tx2.toNumber());
         expect(await tx2.toNumber()).to.be.equal(11);
+
+    })
+    it("royalityfee testing of nft", async function(){
+
+        
+
 
     })
 });

@@ -25,7 +25,6 @@ describe(" NFT marketplace contract testing", async function () {
 
         // console.log("details of nft contract ",NFT)
 
-
         //////////////////////////// for time deplay function
         function sleep(ms) {
             return new Promise((resolve) => setTimeout(resolve, ms));
@@ -35,9 +34,8 @@ describe(" NFT marketplace contract testing", async function () {
         const priceofnft = await ethers.utils.parseEther("0.000002");
 
         for (i = 0; i < 10; i++) {
-
             // call function to mint nft on blockchain
-            const tx1 = await NFT.connect(ACCOUNTS[i]).creatToken(
+            let tx1 = await NFT.connect(ACCOUNTS[i]).creatToken(
                 `anand${i}kumar-->${i}`,
                 priceofnft,
                 i
@@ -47,11 +45,7 @@ describe(" NFT marketplace contract testing", async function () {
         console.log("total token in market place", await NFT.GetCurrentToken());
     });
 
-
-
-
     it("get all tokenUri/ hash value of store data on ipfs", async function () {
-
         console.log("total token id ", await NFT.GetCurrentToken());
         const totalToken = await NFT.GetCurrentToken();
         console.log("total token uri");
@@ -67,13 +61,12 @@ describe(" NFT marketplace contract testing", async function () {
         // console.log("total token uri", await NFT.tokenURI(10))
     });
 
-
     it("get  details of all nft", async function () {
         const totalToken = await NFT.GetCurrentToken();
         console.log("get details of all nft by using javascript");
         for (i = 0; i < totalToken; i++) {
             try {
-                // call function to get details of nft 
+                // call function to get details of nft
                 console.log(await NFT.GetNFTDetails(i));
             } catch (error) {
                 console.log(`get error to find token details of ${i}`);
@@ -89,7 +82,6 @@ describe(" NFT marketplace contract testing", async function () {
             const det1 = await NFT.GetNFTDetails(i);
             console.log(await NFT.ownerOf(i));
             expect(await NFT.ownerOf(i)).to.be.equal(await det1.owner);
-
         }
 
         console.log("address of nft contract", NFT.address);
@@ -101,7 +93,7 @@ describe(" NFT marketplace contract testing", async function () {
         const tx1 = await NFT.connect(ACCOUNTS[2]).buy(1, {
             value: ethers.utils.parseEther("0.000002"),
         });
-        console.log("gasfee of buy nft",tx1.gasPrice);
+        console.log("gasfee of buy nft", tx1.gasPrice);
         // let's user is account[2] // fetch from metamask
         for (i = 0; i < totalToken; i++) {
             try {
@@ -136,7 +128,6 @@ describe(" NFT marketplace contract testing", async function () {
                         "##################successfully get my all created nft #####################################"
                     );
 
-
                     console.log(await creator);
                 }
             } catch (error) {
@@ -145,15 +136,12 @@ describe(" NFT marketplace contract testing", async function () {
         }
     });
 
-
     it("get price of ALL NFts", async function () {
         const totalToken = await NFT.GetCurrentToken();
         console.log("get price of  all NFTs ");
 
         for (i = 0; i < totalToken; i++) {
             try {
-
-
                 console.log(
                     `price of nft for tokenId==${i} is equal to`,
                     // call this function to get price of nft
@@ -164,7 +152,6 @@ describe(" NFT marketplace contract testing", async function () {
             }
         }
     });
-
 
     it("ownership testing of each nft", async function () {
         const tx1 = await NFT.connect(ACCOUNTS[2]).buy(1, {
@@ -193,7 +180,7 @@ describe(" NFT marketplace contract testing", async function () {
 
         console.log("price of tokenid 1 is ", await NFT.GetNftPrice(1));
         const tx1 = await NFT.connect(ACCOUNTS[10]).buy(1, {
-            value: ethers.utils.parseEther("0.000002")
+            value: ethers.utils.parseEther("0.000002"),
         });
         console.log("gas fee of buy function", tx1.gasPrice);
         const tx2 = await NFT.connect(ACCOUNTS[9]).buy(1, {
@@ -201,7 +188,9 @@ describe(" NFT marketplace contract testing", async function () {
             // console.log("gas fee of buy function",tx1.gasPrice)
         });
         console.log("details of token 1 nft after buy", nftdetails);
-        console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+        console.log(
+            "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+        );
         console.log("gas fee details of buy nft@@@@@@@@@@@@@@", await tx1.gasPrice);
         // expect(await NFT.ownerOf(1)).to.be.equal(await nftdetails.owner);
 
@@ -211,9 +200,7 @@ describe(" NFT marketplace contract testing", async function () {
         );
     });
 
-
     it("get transaction history of NFT", async function () {
-
         for (i = 0; i < 5; i++) {
             const tx1 = await NFT.connect(ACCOUNTS[i + 2]).buy(1, {
                 value: ethers.utils.parseEther("0.000002"),
@@ -224,24 +211,17 @@ describe(" NFT marketplace contract testing", async function () {
 
         // call this function to get transaction history of particular nft
         const txHis = await NFT.GetTransactionHistory(1);
-        console.log("get transaction history of nft gas fee", txHis.gasPrice)
+        console.log("get transaction history of nft gas fee", txHis.gasPrice);
         console.log(txHis);
-
-
-    })
-
-
+    });
 
     it("get latest nft listed", async function () {
-
         console.log("get latest nft listed on market place");
 
         // call this function to get latest token(nft ) value
         const latestToken = await NFT.GetCurrentToken();
         console.log(await NFT.GetNFTDetails(latestToken - 1));
-
-    })
-
+    });
 
     it("update nft price vlaue", async function () {
         // console.log(NFT);
@@ -252,21 +232,17 @@ describe(" NFT marketplace contract testing", async function () {
             utils.parseEther("200")
         );
         expect(await NFT.GetNftPrice(1)).to.be.equal(utils.parseEther("200"));
+    });
 
-    })
-
-    it("get my total nft", async function(){
+    it("get my total nft", async function () {
         console.log("get my total number of nfts");
         expect(await NFT.MyTotalNft(ACCOUNTS[2].address)).to.be.equal(1);
-    })
+    });
 
-
-    it("withdraw all ether from contract",async function(){
-        const tx1= await NFT.connect(ACCOUNTS[0]).withdraw();
+    it("withdraw all ether from contract", async function () {
+        const tx1 = await NFT.connect(ACCOUNTS[0]).withdraw();
         expect(await Provider.getBalance(NFT.address)).to.be.equal(0);
-
-
-    })
+    });
 
     it("get token id at time of minitng", async function () {
         const tx2 = await NFT.connect(ACCOUNTS[3]).callStatic.creatToken(
@@ -276,12 +252,61 @@ describe(" NFT marketplace contract testing", async function () {
         );
         console.log("tx2 details", tx2.toNumber());
         expect(await tx2.toNumber()).to.be.equal(11);
+    });
 
-    })
-    it("royalityfee testing of nft", async function(){
+    it("create and buy test", async function () {
+        // console.log("tokenId==", await NFT.GetCurrentToken());
+        const price = 0.0005;// take input from users
+        const balanceInWei = await ethers.utils.parseEther(`${price}`);
+        console.log("price in wei", balanceInWei);
+
+        await NFT.on("Mint", (creator, tokenId, tokenURI) => {
+            console.log("event details");
+            console.log(creator, tokenId, tokenURI);
+        });
+        const tx1 = await NFT.connect(ACCOUNTS[3]).creatToken(
+            "appu",
+            balanceInWei,
+            10
+        );
+        await tx1.wait()
+        console.log(tx1)
+        expect(await NFT.GetCurrentToken()).to.be.equal(11);
+
+
+        // buy nft
+
+        for(let i=12;i>0;i--){
+            console.log(
+                "transaction history of nft before buy",
+                await NFT.GetTransactionHistory(i)
+            );
+            // const balanceInEth = await ethers.utils.formatEther(NftPrice);
+            try{
+
+                const NftPrice = await NFT.GetNftPrice(i);
+                const tx2 = await NFT.connect(ACCOUNTS[2]).buy(i, {
+                    value: NftPrice,
+                });
+                await tx2.wait();
+                console.log(
+                    "transaction history of nft after buy",
+                    await NFT.GetTransactionHistory(i)
+                );
+            }catch(error){
+                console.log(`error with token-->${i}`,error)
+            }
+
+
+
+        }
+    });
+
+    it("royalityfee testing of nft", async function () {
 
         
 
 
-    })
+    });
 });
+// })

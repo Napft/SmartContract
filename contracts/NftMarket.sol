@@ -102,6 +102,12 @@ contract NFTmarketplace is ERC721URIStorage {
         require(msg.sender == ownerOf(tokenId), "Owner Unauthorised");
         priceOfNFT[tokenId] = price;
     }
+    
+    function changeAdmin(address _newadmin) external OnlyOwner {
+        PreviousAdmin = Admin;
+        Admin = _newadmin;
+        emit LogchangeAdmin(PreviousAdmin, Admin);
+    }
 
     function GetNFTDetails(uint256 tokenId)
         external
@@ -117,12 +123,6 @@ contract NFTmarketplace is ERC721URIStorage {
         owner = ownerOf(tokenId);
         price = priceOfNFT[tokenId];
         IpfsHash = tokenURI(tokenId);
-    }
-
-    function changeAdmin(address _newadmin) external OnlyOwner {
-        PreviousAdmin = Admin;
-        Admin = _newadmin;
-        emit LogchangeAdmin(PreviousAdmin, Admin);
     }
 
     function GetTransactionHistory(uint256 tokenId)
